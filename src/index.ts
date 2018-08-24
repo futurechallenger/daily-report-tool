@@ -81,40 +81,11 @@ function sendEmail(content: string) {
   });
 }
 
-/**
- * Get daily report from pull request.
- * @param {*} pullRequests
- */
-function getDailyReport(pullRequests: any) {
-  if (!pullRequests) {
-    return;
-  }
-
-  const items = types.map(type => ({ type, commits: [] }));
-  for (const [i, pr] of pullRequests.entries()) {
-    const { title, number } = pr;
-    const tpl = `* ${title} ([#${number}](https://github.com/ringcentral/ringcentral-js-widgets/pull/${number}))`;
-    items[i % items.length].commits.push(tpl);
-  }
-  const tpl = ["** Commits daily report on 06/12/2018 Tuesday **"];
-  for (const item of items) {
-    const typeTpl = getSubTitle(item.type);
-    tpl.push("");
-    if (item.commits.length > 0) {
-      tpl.push(typeTpl);
-      for (const commit of item.commits) {
-        tpl.push(commit);
-      }
-    }
-  }
-  return tpl.join("\n");
-}
-
 async function getCommits() {
   try {
     //TODO: add a url composer to handle diffference repo and different time span.
     const resp = await axios.get(
-      "https://api.github.com/repos/ringcentral/ringcentral-js-widgets/commits?since=2018-8-9T00:00:00Z&until=2018-08-14T:00:00Z"
+      "https://api.github.com/repos/ringcentral/ringcentral-js-widgets/commits?since=2018-6-9T00:00:00Z&until=2018-6-14T:00:00Z"
     );
     const prs = [];
     for (const data of resp.data) {
@@ -132,6 +103,39 @@ async function getCommits() {
   } catch (err) {
     console.error("Request commits error: ", err);
   }
+}
+
+/**
+ * Get daily report from pull request.
+ * @param {*} pullRequests
+ */
+function getDailyReport(pullRequests: any) {
+  if (!pullRequests) {
+    return;
+  }
+
+  console.log("soemthing new here");
+
+  const items = types.map(type => ({ type, commits: [] }));
+  const prList = pullRequests && pullRequests.entries();
+  for (const [i, pr] of prList) {
+    const { title, number } = pr;
+    const tpl = `* ${title} ([#${number}](https://github.com/ringcentral/ringcentral-js-widgets/pull/${number}))`;
+    items[i % items.length].commits.push(tpl);
+  }
+  const tpl = ["** Commits daily report on 06/12/2018 Tuesday **"];
+  for (const item of items) {
+    const typeTpl = getSubTitle(item.type);
+    // tpl.push("");
+    tpl.push(typeTpl);
+    if (item.commits.length > 0) {
+      // tpl.push(typeTpl);
+      for (const commit of item.commits) {
+        tpl.push(commit);
+      }
+    }
+  }
+  return tpl.join("\n");
 }
 
 async function start() {
